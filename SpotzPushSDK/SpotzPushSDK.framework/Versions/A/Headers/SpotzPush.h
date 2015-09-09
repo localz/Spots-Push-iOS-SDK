@@ -10,7 +10,16 @@
 #import <Foundation/Foundation.h>
 #import "SpotzPushConfig.h"
 
+@class SpotzPush;
+
+@protocol SpotzPushDelegate <NSObject>
+@optional
+-(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo;
+@end
+
 @interface SpotzPush : NSObject
+
+@property (nonatomic,assign) id<SpotzPushDelegate> delegate;
 
 @property (nonatomic) UIUserNotificationType userNotificationTypes;
 
@@ -74,7 +83,7 @@
 
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
 
-- (void) appRegisteredUserNotificationSettings;
+- (void) appRegisteredUserNotificationSettings:(UIUserNotificationSettings *)userNotificationSettings;
 
 #pragma mark Push helpers
 
