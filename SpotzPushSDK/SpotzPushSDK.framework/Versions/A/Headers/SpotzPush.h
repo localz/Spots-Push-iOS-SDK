@@ -21,7 +21,6 @@
 
 @property (nonatomic,assign) id<SpotzPushDelegate> delegate;
 
-@property (nonatomic) UIUserNotificationType userNotificationTypes;
 
 /**
  * Returns the singleton instance of SpotzPush
@@ -35,13 +34,19 @@
  *  @param appKey appKey provided by Localz
  *  @param options options for advance settings/debugging
  */
-+ (void) initWithProjectId:(NSString *)projectId projectKey:(NSString *)projectKey config:(SpotzPushConfig *)config;
++ (void) initWithProjectId:(NSString *)projectId projectKey:(NSString *)projectKey config:(NSDictionary *)config;
+
+/**
+ *  Enables push notification with default alerts
+ *  Call this method when the time is right to prompt user to accept notifications.
+ */
+- (void) startSpotzPush;
 
 /**
  *  Enables push notification. If user has not yet enabled push notification, this will prompt the user to allow notifications.
  *  Call this method when the time is right to prompt user to accept notifications.
  */
-- (void) userPushNotificationsEnabled:(BOOL)enable;
+- (void) startSpotzPushWithUserTypes:(UIUserNotificationType)types categories:(NSSet *)categories;
 
 /**
  *  Enables location services. If user has not yet enabled location services, this will prompt the permission dialog.
@@ -82,8 +87,6 @@
 - (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
-
-- (void) appRegisteredUserNotificationSettings:(UIUserNotificationSettings *)userNotificationSettings;
 
 #pragma mark Push helpers
 
