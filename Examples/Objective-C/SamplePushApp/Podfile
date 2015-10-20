@@ -1,0 +1,6 @@
+platform :ios,'8.0'
+
+xcodeproj 'SamplePushApp'
+
+#pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
+pod 'SpotzPushSDK', :path => '../../../'

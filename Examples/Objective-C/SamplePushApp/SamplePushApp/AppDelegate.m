@@ -17,9 +17,6 @@
     // Initialize Spotz Push
     [SpotzPush initWithProjectId:@"<INSERT YOUR PROJECT ID HERE>" projectKey:@"<INSERT YOUR PROJECT KEY HERE>" config:nil];
     
-    // Setup type of notifications
-    [SpotzPush shared].userNotificationTypes = UIUserNotificationTypeSound|UIUserNotificationTypeAlert|UIUserNotificationTypeBadge;
-    
     // Override point for customization after application launch.
     return YES;
 }
@@ -55,7 +52,7 @@
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-    [[SpotzPush shared] appRegisteredUserNotificationSettings];
+    NSLog(@"Push setup successfull");
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
