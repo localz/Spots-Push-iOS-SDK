@@ -8,7 +8,6 @@
 @import UIKit;
 @import CoreLocation;
 #import <Foundation/Foundation.h>
-#import "SpotzPushConfig.h"
 
 @class SpotzPush;
 
