@@ -36,13 +36,13 @@
 + (void) initWithProjectId:(NSString *)projectId projectKey:(NSString *)projectKey config:(NSDictionary *)config;
 
 /**
- *  Enables push notification with default alerts
+ *  Enables push notification with default alerts with default settings.
  *  Call this method when the time is right to prompt user to accept notifications.
  */
 - (void) startSpotzPush;
 
 /**
- *  Enables push notification. If user has not yet enabled push notification, this will prompt the user to allow notifications.
+ *  Enables push notification with custom settings. If user has not yet enabled push notification, this will prompt the user to allow notifications.
  *  Call this method when the time is right to prompt user to accept notifications.
  */
 - (void) startSpotzPushWithUserTypes:(UIUserNotificationType)types categories:(NSSet *)categories;
@@ -52,7 +52,7 @@
  *  This is required to be called prior to locating user via push notification. 
  *  Call this method when the time is right to prompt user to accept location services.
  */
-- (void) locationServicesEnabled:(BOOL)enable;
+- (void) enableLocationServices;
 
 /**
  *  Register push notification device token for Push Notifications
@@ -111,6 +111,10 @@
  */
 + (BOOL) isLocationServicesAuthorized;
 
+/**
+ *  Check if the background refresh is enabled
+ *  @return true if enabled, false if not
+ */
 + (BOOL) isBackgroundRefreshEnabled;
 
 @end
