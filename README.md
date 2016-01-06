@@ -13,7 +13,7 @@ How to use the SDK
 
 **SDK is developed for iOS 8.0 or later.
 
-There are only 4 actions to implement - **setup, configure, and initialise!**
+There are only 3 actions to implement - **setup, configure, and initialise!**
 
 *Refer to the sample app code for a working implementation of the SDK.*
 
