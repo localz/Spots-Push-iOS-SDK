@@ -18,5 +18,5 @@ Pod::Spec.new do |s|
 	s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(inherited)' }
  	s.vendored_frameworks = 'SpotzPushSDK/SpotzPushSDK.framework'
 	s.frameworks = 'UIKit','Foundation','SystemConfiguration','CoreLocation'
-	s.dependency 'AFNetworking'
+	s.dependency 'AFNetworking','~>2.6.3'
 end
