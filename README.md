@@ -32,13 +32,23 @@ NSLocationAlwaysUsageDescription //Required for Location Push
 
 Import the SpotzPush header into the AppDelegate, then in the didFinishLaunchingWithOptions method add the following:
 
-Objective-C
+__Objective-C__
 ```
-[SpotzPush initWithProjectId:@"<Enter your app ID here>" appKey:@"<Enter your client key here>" config:nil];
+[SpotzPush initWithProjectId:@"<Enter your app ID here>" projectKey:@"<Enter your client key here>" config:nil];
 ```
+
+__Swift__
+```
+SpotzPush.initWithProjectId("<Enter your app ID here>", projectKey:"<Enter your client key here>", config:nil)
+```
+Note: You'll have to add the import into your <Project>-Swift-Bridging-Header.h file
+```
+#import <SpotzPushSDK/SpotzPush.h>
+```
+
 **5. Add the following code into AppDelegate**
 
-Objective-C
+__Objective-C__
 ```
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     
@@ -71,22 +81,58 @@ Objective-C
     [[SpotzPush shared] appReceivedRemoteNotification:userInfo applicationState:application.applicationState fetchCompletionHandler:completionHandler];
 }
 ```
+
+__Swift__
+```
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        SpotzPush.shared().appRegisteredForRemoteNotificationsWithDeviceToken(deviceToken)
+    }
+
+    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+        print("Push setup successful")
+    }
+
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+        SpotzPush.shared().appFailedToRegisterForRemoteNotificationsWithError(error)
+    }
+
+    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+        SpotzPush.shared().appReceivedActionWithIdentifier(identifier, notification: userInfo, applicationState: application.applicationState, completionHandler: completionHandler)
+    }
+
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        SpotzPush.shared().appReceivedRemoteNotification(userInfo, applicationState: application.applicationState)
+    }
+
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+        SpotzPush.shared().appReceivedRemoteNotification(userInfo, applicationState: application.applicationState, fetchCompletionHandler: completionHandler)
+    }
+```
 **5. Start SpotzPush service**
 
 In order to send a push notification, the user has to accept iOS push notification permission request. You can control when the user is to be prompted by calling this method
 
+__Objective-C__
 ```
 [[SpotzPush shared] startSpotzPush];
 ```
-
+__Swift__
+```
+SpotzPush.shared().startSpotzPush()
+```
 This is required before you can start sending push notification to the device. You will only need to call this method once (e.g. during app setup/introduction).
 
 **6. Start Location services for location push (optional)**
 
 Similarly you will need to prompt user to accept location services permission request.
 
+__Objective-C__
 ```
 [[SpotzPush shared] enableLocationServices];
+```
+__Swift__
+```
+SpotzPush.shared().enableLocationServices()
 ```
 
 You will only need to call this once (e.g. during app setup/introduction).
