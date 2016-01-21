@@ -5,7 +5,7 @@ Spotz Push SDK
 
 Just add the following line to your Podfile:
 ```
-pod 'SpotzSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
+pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
 ```
 
 How to use the SDK
