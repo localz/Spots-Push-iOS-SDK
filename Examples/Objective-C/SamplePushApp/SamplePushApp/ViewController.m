@@ -22,12 +22,8 @@
 }
 - (IBAction)startPush:(id)sender {
     
-    // Prompt user to enable push notification, defaults with the following notification types: UIUserNotificationTypeAlert|UIUserNotificationTypeSound|UIUserNotificationTypeBadge
+    // Prompt user to enable push notification
     [[SpotzPush shared] startSpotzPush];
-    
-    // Or alternatively setup type of notifications, with the following:
-    
-    //[[SpotzPush shared] startSpotzPushWithUserTypes: UIUserNotificationTypeSound|UIUserNotificationTypeAlert|UIUserNotificationTypeBadge categories:nil ];
 }
 - (IBAction)startLocation:(id)sender {
     // Prompt user to share location services

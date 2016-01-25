@@ -9,13 +9,19 @@
 #import "AppDelegate.h"
 #import <SpotzPushSDK/SpotzPush.h>
 
+@interface AppDelegate()<SpotzPushDelegate>
+@end
+
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    // Initialize Spotz Push
-    [SpotzPush initWithProjectId:@"<INSERT YOUR PROJECT ID HERE>" projectKey:@"<INSERT YOUR PROJECT KEY HERE>" config:nil];
+    // Initialize Spotz Push. We prompt the permission dialog when user tap on the Enable Push Notification button which calls  startSpotzPush, therefore set start = false
+    [SpotzPush initWithAppId:@"<App ID>" appKey:@"<App Key>" start:false config:nil];
+    
+    // OPTIONAL: Set delegate if you are implementing [SpotzPushDelegate spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo]
+    [SpotzPush shared].delegate = self;
     
     // Override point for customization after application launch.
     return YES;
@@ -64,6 +70,8 @@
 {
     [[SpotzPush shared] appReceivedActionWithIdentifier:identifier notification:userInfo
                                        applicationState:application.applicationState completionHandler:completionHandler];
+    
+    completionHandler();
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -74,5 +82,27 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [[SpotzPush shared] appReceivedRemoteNotification:userInfo applicationState:application.applicationState fetchCompletionHandler:completionHandler];
+}
+
+#pragma mark SpotzPushDelegate
+
+- (void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    // optionally you can implement this delegate method to process your own push messages
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Spotz Push Message"
+                                                                   message:userInfo[@"aps"][@"alert"]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
+    
+    [alert addAction:defaultAction];
+
+    if(self.window.rootViewController.presentedViewController)
+    {
+        [self.window.rootViewController dismissViewControllerAnimated:true completion:nil];
+    }
+    
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 @end
