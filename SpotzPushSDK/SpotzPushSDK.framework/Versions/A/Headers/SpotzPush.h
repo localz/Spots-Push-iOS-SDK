@@ -27,25 +27,44 @@
 + (SpotzPush *) shared;
 
 /**
- *  Initialise service and register device with the given API Key and client Key. This will not start push notification.
+ *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
+ *  This will setup push with default UIUserNotificationTypes and no categories. Use this init method if you want to have the flexibility to place the iOS Push notification permission popup in your app by calling [[SpotzPush shared] startSpotzPush].
  *
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
  *  @param options options for advance settings/debugging
  */
-+ (void) initWithProjectId:(NSString *)projectId projectKey:(NSString *)projectKey config:(NSDictionary *)config;
++ (void) initWithProjectId:(NSString *)appId projectKey:(NSString *)appKey config:(NSDictionary *)config;
+
+/**
+ *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
+ *  This will setup push with default UIUserNotificationTypes and no categories. 
+ *
+ *  @param appId appId provided by Localz
+ *  @param appKey appKey provided by Localz
+ *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
+ *  @param options options for advance settings/debugging
+ */
++ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start config:(NSDictionary *)config;
+
+/**
+ *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
+ *  This will setup push with default UIUserNotificationTypes and no categories.
+ *
+ *  @param appId appId provided by Localz
+ *  @param appKey appKey provided by Localz
+ *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
+ *  @param userTypes The notification types that your app supports. For a list of possible values, see the constants for the UIUserNotificationType type.
+ *  @param categories A set of UIUserNotificationCategory objects that define the groups of actions a notification may include.
+ *  @param options options for advance settings/debugging
+ */
++ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start userTypes:(UIUserNotificationType)types categories:(NSSet *)categories config:(NSDictionary *)config;
 
 /**
  *  Enables push notification with default alerts with default settings.
  *  Call this method when the time is right to prompt user to accept notifications.
  */
 - (void) startSpotzPush;
-
-/**
- *  Enables push notification with custom settings. If user has not yet enabled push notification, this will prompt the user to allow notifications.
- *  Call this method when the time is right to prompt user to accept notifications.
- */
-- (void) startSpotzPushWithUserTypes:(UIUserNotificationType)types categories:(NSSet *)categories;
 
 /**
  *  Enables location services. If user has not yet enabled location services, this will prompt the permission dialog.
@@ -73,8 +92,9 @@
  *
  *  @param userInfo dictionary of the push notification
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
+ *  @return true if it is a spotz push notification, false if not/will not be processed by Spotz Push
  */
-- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
+- (BOOL) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
 
 /**
  *  Handles the remote notification for SpotzPush purposes
@@ -82,8 +102,9 @@
  *  @param userInfo dictionary of the push notification
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
  *  @param completionHandler block after fetch result
+ *  @return true if it is a spotz push notification, false if not/will not be processed by Spotz Push
  */
-- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (BOOL) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
 
@@ -95,7 +116,7 @@
 - (NSString *) getDeviceId;
 
 /**
- *  Returns true if push notification is enabled
+ *  Returns true if push notification is enabled and UIUserNotificationType is not set to none
  */
 + (BOOL) isPushNotificationEnabled;
 
