@@ -13,7 +13,7 @@
 
 @protocol SpotzPushDelegate <NSObject>
 @optional
--(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo;
+-(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^) (UIBackgroundFetchResult result))completionHandler;
 @end
 
 @interface SpotzPush : NSObject
@@ -81,6 +81,13 @@
 - (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 
 /**
+ *  Register app user notification settings. Call this in AppDelegate's didRegisterUserNotificationSettings
+ *  
+ *  @param A set of UIUserNotificationCategory objects that define the groups of actions a notification may include.
+ */
+- (void) appRegisteredUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+
+/**
  *  Handles the errors when registering for push notification.
  *
  *  @param error error returned from didFailToRegisterForRemoteNotificationsWithError
@@ -92,9 +99,8 @@
  *
  *  @param userInfo dictionary of the push notification
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
- *  @return true if it is a spotz push notification, false if not/will not be processed by Spotz Push
  */
-- (BOOL) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
+- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
 
 /**
  *  Handles the remote notification for SpotzPush purposes
@@ -102,9 +108,8 @@
  *  @param userInfo dictionary of the push notification
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
  *  @param completionHandler block after fetch result
- *  @return true if it is a spotz push notification, false if not/will not be processed by Spotz Push
  */
-- (BOOL) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
 
