@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
 			Copyright 2015 Localz Pty Ltd.
 			LICENSE
 	}
-	s.version = '1.0.13'
+	s.version = '1.0.14'
 	s.summary = 'iOS library for SpotzPush'
 	s.homepage = 'http://localz.com'
 	s.author = { 'Localz Pty Ltd' => 'info@localz.com' }
@@ -18,5 +18,4 @@ Pod::Spec.new do |s|
 	s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(inherited)' }
  	s.vendored_frameworks = 'SpotzPushSDK/SpotzPushSDK.framework'
 	s.frameworks = 'UIKit','Foundation','SystemConfiguration','CoreLocation'
-	s.dependency 'AFNetworking','~>2.6.3'
 end
