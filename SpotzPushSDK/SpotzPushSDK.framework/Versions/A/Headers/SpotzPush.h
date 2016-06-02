@@ -78,9 +78,17 @@
 /**
  *  Register push notification device token for Push Notifications
  *
- *  @param deviceToken deviceToken
+ *  @param deviceToken deviceToken from Apple
  */
 - (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+
+/**
+ *  Register push notification device token for Push Notifications and device name
+ *
+ *  @param deviceToken deviceToken from Apple
+ *  @param deviceName the device name to identify this device on the console, e.g customerId
+ */
+- (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken deviceName:(NSString *)deviceName;
 
 /**
  *  Register app user notification settings. Call this in AppDelegate's didRegisterUserNotificationSettings
@@ -115,6 +123,8 @@
 
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
 
+- (void) appPerformFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+
 #pragma mark Push helpers
 
 /**
@@ -144,5 +154,10 @@
  *  @return true if enabled, false if not
  */
 + (BOOL) isBackgroundRefreshEnabled;
+
+/**
+ *  Set device name to be able to identify the device easily in the push console
+ */
++ (void) deviceName:(NSString *)deviceName;
 
 @end
