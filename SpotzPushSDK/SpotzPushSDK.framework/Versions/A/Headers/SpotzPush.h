@@ -16,6 +16,7 @@
 -(void)spotzPush:(SpotzPush *)spotzPush failedToRegisterDevice:(NSError *)error;
 -(void)spotzPush:(SpotzPush *)spotzPush failedToUpdateDevice:(NSError *)error;
 -(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^) (UIBackgroundFetchResult result))completionHandler;
+-(void)spotzPushDidFinishRegistering:(SpotzPush *)spotzPush;
 @end
 
 @interface SpotzPush : NSObject
