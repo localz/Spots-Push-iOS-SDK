@@ -70,6 +70,12 @@
 - (void) startSpotzPush;
 
 /**
+ *  Returns SpotzPush started status.
+ *  @return true if spotz push is started, false if not.
+ */
+- (BOOL) isSpotzPushStarted;
+
+/**
  *  Enables location services. If user has not yet enabled location services, this will prompt the permission dialog.
  *  This is required to be called prior to locating user via push notification. 
  *  Call this method when the time is right to prompt user to accept location services.
