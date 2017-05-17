@@ -21,8 +21,7 @@
     
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
-    
-    
+        
     // Check for the attachment
     NSDictionary *userInfo = request.content.userInfo;
     if (userInfo == nil) {
@@ -30,18 +29,18 @@
         return;
     }
     
-    NSString *mediaUrl = userInfo[@"attachment"];
-    if (mediaUrl == nil) {
+    NSString *attachmentURL = userInfo[@"attachment"];
+    if (attachmentURL == nil) {
         [self contentComplete];
         return;
     }
     
     // Detect the attachment type to load
-    NSArray *urlComponents = [mediaUrl componentsSeparatedByString:@"."];
+    NSArray *urlComponents = [attachmentURL componentsSeparatedByString:@"."];
     NSString *type = [@"." stringByAppendingString:[urlComponents lastObject]];
     
     // Load the attachment
-    [self loadAttachmentForUrlString:mediaUrl withType:type completionHandler:^(UNNotificationAttachment *attachment) {
+    [self loadAttachmentForUrlString:attachmentURL withType:type completionHandler:^(UNNotificationAttachment *attachment) {
         // Add the attachment to our best attempt content
         if (attachment) {
             self.bestAttemptContent.attachments = [NSArray arrayWithObject:attachment];
@@ -86,3 +85,4 @@
     }] resume];
 }
 @end
+
