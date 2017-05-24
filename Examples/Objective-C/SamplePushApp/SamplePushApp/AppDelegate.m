@@ -9,21 +9,19 @@
 #import "AppDelegate.h"
 #import <SpotzPushSDK/SpotzPush.h>
 
-@interface AppDelegate()<SpotzPushDelegate>
+@interface AppDelegate() <SpotzPushDelegate, UNUserNotificationCenterDelegate>
 @end
 
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
+    // Override point for customization after application launch.
+
     // Initialize Spotz Push. We prompt the permission dialog when user tap on the Enable Push Notification button which calls  startSpotzPush, therefore set start = false
+    [SpotzPush shared].delegate = self; // Delegate must be set first to be used in init
     [SpotzPush initWithAppId:@"<App ID>" appKey:@"<App Key>" start:false config:nil];
     
-    // OPTIONAL: Set delegate if you are implementing [SpotzPushDelegate spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo]
-    [SpotzPush shared].delegate = self;
-    
-    // Override point for customization after application launch.
     return YES;
 }
 
@@ -58,6 +56,9 @@
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
+    [[SpotzPush shared] appRegisteredUserNotificationSettings:notificationSettings];
+    
+    [[SpotzPush shared] enableLocationServices];
     NSLog(@"Push setup successfull");
 }
 
@@ -67,9 +68,8 @@
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler
-{
-    [[SpotzPush shared] appReceivedActionWithIdentifier:identifier notification:userInfo
-                                       applicationState:application.applicationState completionHandler:completionHandler];
+{    
+    [[SpotzPush shared] appReceivedActionWithIdentifier:identifier notification:userInfo applicationState:application.applicationState completionHandler:completionHandler];
     
     completionHandler();
 }
@@ -84,25 +84,15 @@
     [[SpotzPush shared] appReceivedRemoteNotification:userInfo applicationState:application.applicationState fetchCompletionHandler:completionHandler];
 }
 
-#pragma mark SpotzPushDelegate
-
-- (void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo
+#pragma mark - UNUserNotificationCenterDelegate
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
 {
-    // optionally you can implement this delegate method to process your own push messages
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Spotz Push Message"
-                                                                   message:userInfo[@"aps"][@"alert"]
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction * action) {}];
-    
-    [alert addAction:defaultAction];
-
-    if(self.window.rootViewController.presentedViewController)
-    {
-        [self.window.rootViewController dismissViewControllerAnimated:true completion:nil];
-    }
-    
-    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+    [[SpotzPush shared] userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
 }
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler
+{
+    [[SpotzPush shared] userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+}
+
 @end

@@ -5,12 +5,16 @@
 //  Created by George Yamana on 27/01/2015.
 //  Copyright (c) 2015 Localz Pty Ltd. All rights reserved.
 //
+
 @import CoreLocation;
 #import "ViewController.h"
 #import <SpotzPushSDK/SpotzPush.h>
+
 @interface ViewController()
 @end
+
 @implementation ViewController
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     

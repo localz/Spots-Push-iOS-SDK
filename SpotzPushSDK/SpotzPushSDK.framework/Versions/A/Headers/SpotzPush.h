@@ -8,6 +8,7 @@
 @import UIKit;
 @import CoreLocation;
 #import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
 
 @class SpotzPush;
 
@@ -17,12 +18,13 @@
 -(void)spotzPush:(SpotzPush *)spotzPush failedToUpdateDevice:(NSError *)error;
 -(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^) (UIBackgroundFetchResult result))completionHandler;
 -(void)spotzPushDidFinishRegistering:(SpotzPush *)spotzPush;
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
 @end
 
 @interface SpotzPush : NSObject
 
-@property (nonatomic,assign) id<SpotzPushDelegate> delegate;
-
+@property (nonatomic,assign) id<SpotzPushDelegate, UNUserNotificationCenterDelegate> delegate;
 
 /**
  * Returns the singleton instance of SpotzPush
@@ -53,6 +55,7 @@
 /**
  *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
  *  This will setup push with default UIUserNotificationTypes and no categories.
+ *  For versions earlier than iOS 10
  *
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
@@ -62,6 +65,21 @@
  *  @param options options for advance settings/debugging
  */
 + (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start userTypes:(UIUserNotificationType)types categories:(NSSet *)categories config:(NSDictionary *)config;
+
+/**
+ *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
+ *  This will setup push with default UIUserNotificationTypes and no categories.
+ *  For versions greater than iOS 10 ONLY
+ *
+ *  @param appId appId provided by Localz
+ *  @param appKey appKey provided by Localz
+ *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
+ *  @param authorizationOptins The notification types that your app supports. For a list of possible values, see the constants for the UNAuthorizationOptions type.
+ *  @param categories A set of UNNotificationCategory objects that define the groups of actions a notification may include.
+ *  @param options options for advance settings/debugging
+ */
++ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start authorizationOptions:(UNAuthorizationOptions)options categories:(NSSet *)categories config:(NSDictionary *)config;
+
 
 /**
  *  Enables push notification with default alerts with default settings.
@@ -131,6 +149,10 @@
 - (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
 
 - (void) appPerformFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+
+- (void) userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler;
+
+- (void) userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler;
 
 #pragma mark Push helpers
 
