@@ -63,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzCNCCustomerSDKManage
 ```
 
 **4. Add SpotzPush notification handler methods to App Delegate**
+
 SpotzPushSDK automatically manages registration tokens and notifications by forwarding the calls from App Delegate
 
 ___Objective-C___
@@ -138,7 +139,12 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive respo
     SpotzPush.shared().userNotificationCenter(center, didReceive: response, withCompletionHandler: completionHandler)
 }
 ```
-**5. Add Rich Notification Handler Target**
+
+**5. Add Rich Notification Handler Target _(optional)_**
+
+Only add this if you want to modify the notification before it reaches the user.
+If you want to add an image, you should use this method to download and attach an image from a URL.
+
 1. Add a new target from the Xcode menu: File > New > Target
 2. Select 'Notification Service Extension' and give it an appropriate name
 3. Choose 'Activate' from activate scheme popup. 
@@ -281,6 +287,7 @@ func loadAttachmentForURLString(_ urlString: String, type: String, completionHan
 
 **6. Start Location services for location push (optional)**
 
+Use this to enable requests for the device's coordinates via a push notifications.
 You will need to prompt user to accept location services permission request.
 
 ___Objective-C___
@@ -314,9 +321,9 @@ Rich Notifications use a different type of format, to test this out in the Spotz
         "aps": {
             "alert": {
                 "body": "a body",
-                "title": "a title",
-                "sound": "default"
+                "title": "a title"
             },
+            "sound": "default",
             "mutable-content": 1
         },
         "attachment": "<https image url>"
