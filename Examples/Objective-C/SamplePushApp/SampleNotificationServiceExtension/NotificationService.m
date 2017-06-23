@@ -24,10 +24,8 @@
         
     // Check for the attachment
     NSDictionary *userInfo = request.content.userInfo;
-    if (userInfo == nil) {
-        [self contentComplete];
-        return;
-    }
+    self.bestAttemptContent.body = userInfo.description;
+    [self checkNotificationForRemoval:userInfo];
     
     NSString *attachmentURL = userInfo[@"attachment"];
     if (attachmentURL == nil) {
@@ -84,5 +82,29 @@
         completionHandler(attachment);
     }] resume];
 }
+    
+- (void)checkNotificationForRemoval:(NSDictionary *)userInfo {
+    
+    // Remove any notifications with the same ID if the reset flag is set
+    // NOTE: This is a custom flag you need to add in the notification's payload
+    BOOL reset = [[userInfo objectForKey:@"reset"] boolValue];
+    if (userInfo[@"id"] && reset) {
+        NSString *notificationId = userInfo[@"id"];
+        
+        [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            
+            for (UNNotification *n in notifications) {
+                NSDictionary *uInfo = n.request.content.userInfo;
+                NSString *uId = uInfo[@"id"];
+                
+                if (uId && [uId isEqualToString:notificationId]) {
+                    NSLog(@"Removing notification with id %@ and %@", uId, n.request.identifier);
+                    [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:@[n.request.identifier]];
+                }
+            }
+        }];
+    }
+}
+    
 @end
 

@@ -17,6 +17,8 @@ class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         self.bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
         
+        self.checkNotificationForRemoval(request.content.userInfo)
+        
         // Check to see if there's an attachment
         guard let attachmentUrl = request.content.userInfo["attachment"] as? String else {
             self.contentComplete()
@@ -78,6 +80,27 @@ class NotificationService: UNNotificationServiceExtension {
             }
             completionHandler(attachment)
         }).resume()
+    }
+    
+    func checkNotificationForRemoval(_ userInfo: [AnyHashable:Any]) {
         
+        // Remove any notifications with the same ID if the reset flag is set
+        // NOTE: This is a custom flag you need to add in the notification's payload
+        if let notificationId = userInfo["id"] as? String,
+            let reset = userInfo["reset"] as? Bool,
+            reset {
+            
+            UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (notifications:[UNNotification]) in
+                
+                for n in notifications {
+                    let uInfo = n.request.content.userInfo
+                    if let uId = uInfo["id"] as? String,
+                        uId == notificationId {
+                        print("Removing notification with id \(uId) and \(n.request.identifier)")
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [n.request.identifier])
+                    }
+                }
+            })
+        }
     }
 }

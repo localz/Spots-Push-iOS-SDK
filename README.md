@@ -140,7 +140,7 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive respo
 }
 ```
 
-**5. Add Rich Notification Handler Target _(optional)_**
+**5. Add Rich Notification Image Handler Target _(optional)_**
 
 Only add this if you want to modify the notification before it reaches the user.
 If you want to add an image, you should use this method to download and attach an image from a URL.
@@ -285,7 +285,108 @@ func loadAttachmentForURLString(_ urlString: String, type: String, completionHan
 }
 ```
 
-**6. Start Location services for location push (optional)**
+**6. Add Rich Notification Deletion Capability (optional)**
+
+One of the new features of rich notifications is to edit them after they've been presented to the user. One such use of this would be deleteing a notification to replace it with another another.
+
+This feature assumes you have already added the `Notification Service Extension` as described above in point 5.
+
+Each notification needs to be given a custom ID so it can be identified for deletion later. We are going to use two custom flags in the notifications payload for this.
+1. `userInfo["id"]`: the identifier for this notification or notification group
+2. `userInfo["reset"]`: a boolean value which if set, clears all previous notifications with the specified id
+
+Method:
+1. Add a method to the `Notification Service Extension` to check for a custom id and reset flag
+2. Call this check method in `didReceiveNotificationRequest:` before handling the rest of the notification
+
+___Objective-C___
+```
+- (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
+    
+    self.contentHandler = contentHandler;
+    self.bestAttemptContent = [request.content mutableCopy];
+        
+    // Check for the attachment
+    NSDictionary *userInfo = request.content.userInfo;
+    [self checkNotificationForRemoval:userInfo];
+}
+
+- (void)checkNotificationForRemoval:(NSDictionary *)userInfo {
+    
+    // Remove any notifications with the same ID if the reset flag is set
+    // NOTE: This is a custom flag you need to add in the notification's payload
+    BOOL reset = [[userInfo objectForKey:@"reset"] boolValue];
+    if (userInfo[@"id"] && reset) {
+        NSString *notificationId = userInfo[@"id"];
+        
+        [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            
+            for (UNNotification *n in notifications) {
+                NSDictionary *uInfo = n.request.content.userInfo;
+                NSString *uId = uInfo[@"id"];
+                
+                if (uId && [uId isEqualToString:notificationId]) {
+                    NSLog(@"Removing notification with id %@ and %@", uId, n.request.identifier);
+                    [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:@[n.request.identifier]];
+                }
+            }
+        }];
+    }
+}
+```
+
+___Swift___
+```
+override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    self.contentHandler = contentHandler
+    self.bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+    
+    self.checkNotificationForRemoval(request.content.userInfo)
+}
+
+func checkNotificationForRemoval(_ userInfo: [AnyHashable:Any]) {
+        
+    // Remove any notifications with the same ID if the reset flag is set
+    // NOTE: This is a custom flag you need to add in the notification's payload
+    if let notificationId = userInfo["id"] as? String,
+        let reset = userInfo["reset"] as? Bool,
+        reset {
+        
+        UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (notifications:[UNNotification]) in
+            
+            for n in notifications {
+                let uInfo = n.request.content.userInfo
+                if let uId = uInfo["id"] as? String,
+                    uId == notificationId {
+                    print("Removing notification with id \(uId) and \(n.request.identifier)")
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [n.request.identifier])
+                }
+            }
+        })
+    }
+}
+```
+
+This snippet will now look for an id and reset flag in the notification payloads.
+For example:
+```
+{
+    "apn": {
+        "aps": {
+            "alert": {
+                "body": "a body",
+                "title": "a title"
+            },
+            "sound": "default",
+            "mutable-content": 1
+        },
+        "id":"1",
+        "reset":1
+    }
+}
+```
+
+**7. Start Location services for location push (optional)**
 
 Use this to enable requests for the device's coordinates via a push notifications.
 You will need to prompt user to accept location services permission request.
@@ -302,7 +403,7 @@ SpotzPush.shared().enableLocationServices()
 
 You will only need to call this once (e.g. during app setup/introduction).
 
-**7. Test Push via the console**
+**8. Test Push via the console**
 
 Login to the [Spotz Push console](https://console.localz.io/spotz-push) to send test notifications. Alternatively you can access the console via our microlocation proximity platform [Spotz console](https://console.localz.io/spotz).
 
@@ -331,11 +432,11 @@ Rich Notifications use a different type of format, to test this out in the Spotz
 }
 ```
 
-**8. Push via Spotz Push API**
+**9. Push via Spotz Push API**
 
 See the [API documentation](https://au-api-spotzpush.localz.io/documentation/public/spotzpush_docs.html) for more details.
 
-## The right way to ask for iOS push notification permission
+## The right way to ask for iOS push notification permissions
 
 When a user opens the app for the first time, iOS will prompt the user to accept push notifications. This, however, may not be the desired user experience. The right way for asking for permission is explained in this [website](http://techcrunch.com/2014/04/04/the-right-way-to-ask-users-for-ios-permissions/). In order to time the prompt at the right moment, you will need to do a couple of things:
 
@@ -404,3 +505,4 @@ For bugs, feature requests, or other questions, [file an issue](https://github.c
 License
 =======
 Copyright 2017 Localz Pty Ltd
+
