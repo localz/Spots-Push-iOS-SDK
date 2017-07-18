@@ -8,11 +8,11 @@ Pod::Spec.new do |s|
 			Copyright 2017 Localz Pty Ltd.
 			LICENSE
 	}
-	s.version = '1.1.0.0'
+	s.version = '1.1.1'
 	s.summary = 'iOS library for SpotzPush'
 	s.homepage = 'http://localz.com'
 	s.author = { 'Localz Pty Ltd' => 'info@localz.com' }
-	s.source = { :git => "https://github.com/localz/Spotz-Push-SDK-iOS.git", :tag=>"1.1.0.0" }
+	s.source = { :git => "https://github.com/localz/Spotz-Push-SDK-iOS.git", :tag=>"1.1.1" }
 	s.requires_arc = true
 	s.ios.deployment_target = '8.0'
 	s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(inherited)' }
