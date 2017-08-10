@@ -4,7 +4,7 @@ Spotz Push SDK
 ## Requirements
 
 - iOS 8 or newer to use SpotzPushSDK
-- iOS 10 or newer to use rich notifications such as titles, images, and other interactive content (optional)
+- iOS 10 or newer to use SpotzPushSDK rich notifications (titles, images, resets, and other interactive content)
 
 # Getting Started
 
@@ -20,6 +20,14 @@ use_frameworks!  # Swift only!
 target "<Enter Your Target Name>" do
   pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
 end
+```
+
+**NOTE: Swift files importing Objective-C files require a bridging header:**
+1. Create a new header file
+2. Under the project's Build Settings, add the header file location to Objective-C Bridging Header
+3. Add the SpotzPushSDK to the bridging header as shown below:
+```
+#import <SpotzPushSDK/SpotzPush.h>
 ```
 
 **3. Add initalisation to the App Delegate**
@@ -52,14 +60,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzCNCCustomerSDKManage
         SpotzPush.initWithAppId("<Enter your app ID here>", appKey:"<Enter your app key here>", start:true, config:nil)
         return true
     }
-
-```
-**Note: Swift files importing Objective-C files require a bridging header:**
-1. Create a new header file
-2. Under the project's Build Settings, add the header file location to Objective-C Bridging Header
-3. Add the SpotzPushSDK to the bridging header as shown below:
-```
-#import <SpotzPushSDK/SpotzPush.h>
 ```
 
 **4. Add SpotzPush notification handler methods to App Delegate**
@@ -140,235 +140,56 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive respo
 }
 ```
 
-**5. Add Rich Notification Image Handler Target _(optional)_**
+**5. Add Rich Notification Handler Target _(iOS 10 or newer)_**
 
-Only add this if you want to modify the notification before it reaches the user.
-If you want to add an image, you should use this method to download and attach an image from a URL.
+Rich notifications allow requested content to be modified before it is presented to the user, such as taking an image URL and downloading and attaching an image.
+
+**NOTE: If using Swift, another bridging header is required for the app extension:**
+1. Create a new header file for the app extension
+2. Under the app extension project's Build Settings, add the header file location to Objective-C Bridging Header
+3. Add the SpotzPushSDK to the bridging header as shown below:
+```
+#import <SpotzPushSDK/SpotzPush.h>
+```
 
 1. Add a new target from the Xcode menu: File > New > Target
 2. Select 'Notification Service Extension' and give it an appropriate name
 3. Choose 'Activate' from activate scheme popup. 
 This will add a new folder to the project with this name
-4. Add to NotificationService inside the folder:
+4. Add the following to your Podfile:
+```
+target '<Enter Your Notification Extension Target Name>' do
+    pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
+end
+```
+5. After running `pod install`, go to and set Pods project > SpotzPushSDK target > build settings > `Require Only App-Extension-Safe API` = `NO`
+
+6. Add to NotificationService main file inside the folder:
 
 __Objective-C__
 ```
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
-    self.contentHandler = contentHandler;
-    self.bestAttemptContent = [request.content mutableCopy];
-    
-    // Check for the attachment
-    NSDictionary *userInfo = request.content.userInfo;
-    if (userInfo == nil) {
-        [self contentComplete];
-        return;
-    }
-    
-    NSString *attachmentURL = userInfo[@"attachment"];
-    if (attachmentURL == nil) {
-        [self contentComplete];
-        return;
-    }
-    
-    // Detect the attachment type to load
-    NSArray *urlComponents = [attachmentURL componentsSeparatedByString:@"."];
-    NSString *type = [@"." stringByAppendingString:[urlComponents lastObject]];
-    
-    // Load the attachment
-    [self loadAttachmentForUrlString:attachmentURL withType:type completionHandler:^(UNNotificationAttachment *attachment) {
-        // Add the attachment to our best attempt content
-        if (attachment) {
-            self.bestAttemptContent.attachments = [NSArray arrayWithObject:attachment];
-        }
-        [self contentComplete];
-    }];
+    [[SpotzPushNotificationExtension shared] didReceiveNotificationRequest:request withContentHandler:contentHandler];
 }
 
 - (void)serviceExtensionTimeWillExpire {
-    // Called just before the extension will be terminated by the system.
-    // This will be used to deliver a "best attempt" at the modified content (otherwise the original push payload will be used)
-    [self contentComplete];
-}
-
-- (void)contentComplete {
-    // Confirm the content to be delivered to the user
-    self.contentHandler(self.bestAttemptContent);
-}
-
-- (void)loadAttachmentForUrlString:(NSString *)urlString withType:(NSString *)type completionHandler:(void(^)(UNNotificationAttachment *))completionHandler  {
-    __block UNNotificationAttachment *attachment = nil;
-    NSURL *attachmentURL = [NSURL URLWithString:urlString];
-    
-    // Download the attachment
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-    [[session downloadTaskWithURL:attachmentURL completionHandler:^(NSURL *temporaryFileLocation, NSURLResponse *response, NSError *error) {
-        
-        if (error != nil) NSLog(@"%@", error.localizedDescription);
-        else {
-            // Store the attachment in a temporary location
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            NSURL *localURL = [NSURL fileURLWithPath:[temporaryFileLocation.path stringByAppendingString:type]];
-            [fileManager moveItemAtURL:temporaryFileLocation toURL:localURL error:&error];
-            
-            // Link the attachment to our UNNotificationAttachment
-            NSError *attachmentError = nil;
-            attachment = [UNNotificationAttachment attachmentWithIdentifier:@"" URL:localURL options:nil error:&attachmentError];
-            if (attachmentError) NSLog(@"%@", attachmentError.localizedDescription);
-        }
-        completionHandler(attachment);
-    }] resume];
+    [[SpotzPushNotificationExtension shared] serviceExtensionTimeWillExpire];
 }
 ```
 
 __Swift__
 ```
 override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-    self.contentHandler = contentHandler
-    self.bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-    
-    // Check to see if there's an attachment
-    guard let attachmentUrl = request.content.userInfo["attachment"] as? String else {
-        self.contentComplete()
-        return
-    }
-    
-    let urlComponents = attachmentUrl.components(separatedBy: ".")
-    guard let fileType = urlComponents.last else {
-        self.contentComplete()
-        return
-    }
-    
-    self.loadAttachmentForURLString(attachmentUrl, type: "."+fileType, completionHandler: { (attachment:UNNotificationAttachment?) in
-        if let attachment = attachment {
-            self.bestAttemptContent?.attachments = [attachment]
-        }
-        self.contentComplete()
-    })
+    SpotzPushNotificationExtension.shared().didReceive(request, withContentHandler: contentHandler)
 }
 
 override func serviceExtensionTimeWillExpire() {
-    // Called just before the extension will be terminated by the system.
-    // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-    self.contentComplete()
-}
-
-func contentComplete() {
-    // Confirm the content to be delivered to the user
-    self.contentHandler!(self.bestAttemptContent!)
-}
-
-func loadAttachmentForURLString(_ urlString: String, type: String, completionHandler: @escaping ((_ attachment: UNNotificationAttachment?) -> Void)) {
-    var attachment:UNNotificationAttachment?
-    let attachmentURL = URL(string: urlString)!
-    
-    let session = URLSession(configuration: URLSessionConfiguration.default)
-    (session.downloadTask(with: attachmentURL) { (temporaryURL:URL?, response:URLResponse?, error:Error?) in
-        
-        if let error = error {
-            print(error.localizedDescription)
-        } else if let temporaryURL = temporaryURL {
-            
-            // Store the attachment in a temporary location
-            let fileManager = FileManager.default
-            let localURL = URL(fileURLWithPath: (temporaryURL.path+type))
-            
-            // Link the attachment to our UNNotificationAttachment
-            do {
-                try fileManager.moveItem(at: temporaryURL, to: localURL)
-                try attachment = UNNotificationAttachment(identifier: "", url: localURL, options: nil)
-            } catch {
-                print("Failed to move item to location "+localURL.path+" and create attachment")
-            }
-        }
-        completionHandler(attachment)
-    }).resume()
+    SpotzPushNotificationExtension.shared().serviceExtensionTimeWillExpire()
 }
 ```
 
-**6. Add Rich Notification Deletion Capability (optional)**
-
-One of the new features of rich notifications is to edit them after they've been presented to the user. One such use of this would be deleteing a notification to replace it with another another.
-
-This feature assumes you have already added the `Notification Service Extension` as described above in point 5.
-
-Each notification needs to be given a custom ID so it can be identified for deletion later. We are going to use two custom flags in the notifications payload for this.
-1. `userInfo["id"]`: the identifier for this notification or notification group
-2. `userInfo["reset"]`: a boolean value which if set, clears all previous notifications with the specified id
-
-Method:
-1. Add a method to the `Notification Service Extension` to check for a custom id and reset flag
-2. Call this check method in `didReceiveNotificationRequest:` before handling the rest of the notification
-
-___Objective-C___
-```
-- (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
-    
-    self.contentHandler = contentHandler;
-    self.bestAttemptContent = [request.content mutableCopy];
-        
-    // Check for the attachment
-    NSDictionary *userInfo = request.content.userInfo;
-    [self checkNotificationForRemoval:userInfo];
-}
-
-- (void)checkNotificationForRemoval:(NSDictionary *)userInfo {
-    
-    // Remove any notifications with the same ID if the reset flag is set
-    // NOTE: This is a custom flag you need to add in the notification's payload
-    BOOL reset = [[userInfo objectForKey:@"reset"] boolValue];
-    if (userInfo[@"id"] && reset) {
-        NSString *notificationId = userInfo[@"id"];
-        
-        [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
-            
-            for (UNNotification *n in notifications) {
-                NSDictionary *uInfo = n.request.content.userInfo;
-                NSString *uId = uInfo[@"id"];
-                
-                if (uId && [uId isEqualToString:notificationId]) {
-                    NSLog(@"Removing notification with id %@ and %@", uId, n.request.identifier);
-                    [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:@[n.request.identifier]];
-                }
-            }
-        }];
-    }
-}
-```
-
-___Swift___
-```
-override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-    self.contentHandler = contentHandler
-    self.bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-    
-    self.checkNotificationForRemoval(request.content.userInfo)
-}
-
-func checkNotificationForRemoval(_ userInfo: [AnyHashable:Any]) {
-        
-    // Remove any notifications with the same ID if the reset flag is set
-    // NOTE: This is a custom flag you need to add in the notification's payload
-    if let notificationId = userInfo["id"] as? String,
-        let reset = userInfo["reset"] as? Bool,
-        reset {
-        
-        UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (notifications:[UNNotification]) in
-            
-            for n in notifications {
-                let uInfo = n.request.content.userInfo
-                if let uId = uInfo["id"] as? String,
-                    uId == notificationId {
-                    print("Removing notification with id \(uId) and \(n.request.identifier)")
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [n.request.identifier])
-                }
-            }
-        })
-    }
-}
-```
-
-This snippet will now look for an id and reset flag in the notification payloads.
-For example:
+Received notifications will now be interpretered by SpotzPushSDK before being presented to the user.
+Here's an example payload of what will be accepted. SpotzPushSDK will only look inside `sp_option`:
 ```
 {
     "apn": {
@@ -380,13 +201,22 @@ For example:
             "sound": "default",
             "mutable-content": 1
         },
-        "id":"1",
-        "reset":1
+        "sp_option": {
+            "id":1234,
+            "cancel":[1234],
+            "attachment":"some HTTPS image url"
+        }
     }
 }
 ```
 
-**7. Start Location services for location push (optional)**
+| Key             | Example Value         | Info                                                                                                                    |
+|-------------- |------------------------|---------------------------------------------------------------------------------------|
+| id                | 1234                         | Identifier to distinguish this notification or group of notifications from others |
+| cancel         | [1234]                      | Array of identifiers to clear from the device                                                      |
+| attachment | https://some-image.png | HTTPS URL or an image/video to display in the notification                    |
+
+**6. Start Location services for location push (optional)**
 
 Use this to enable requests for the device's coordinates via a push notifications.
 You will need to prompt user to accept location services permission request.
@@ -401,9 +231,9 @@ ___Swift___
 SpotzPush.shared().enableLocationServices()
 ```
 
-You will only need to call this once (e.g. during app setup/introduction).
+You will only need to call this once (during app setup/introduction).
 
-**8. Test Push via the console**
+**7. Test Push via the console**
 
 Login to the [Spotz Push console](https://console.localz.io/spotz-push) to send test notifications. Alternatively you can access the console via our microlocation proximity platform [Spotz console](https://console.localz.io/spotz).
 
@@ -427,16 +257,18 @@ Rich Notifications use a different type of format, to test this out in the Spotz
             "sound": "default",
             "mutable-content": 1
         },
-        "attachment": "<https image url>"
+        "sp_option": {
+            "attachment":"https://someimage.png"
+        }
     }
 }
 ```
 
-**9. Push via Spotz Push API**
+**8. Push via Spotz Push API**
 
 See the [API documentation](https://au-api-spotzpush.localz.io/documentation/public/spotzpush_docs.html) for more details.
 
-## The right way to ask for iOS push notification permissions
+## The _right way_ to ask for iOS push notification permissions
 
 When a user opens the app for the first time, iOS will prompt the user to accept push notifications. This, however, may not be the desired user experience. The right way for asking for permission is explained in this [website](http://techcrunch.com/2014/04/04/the-right-way-to-ask-users-for-ios-permissions/). In order to time the prompt at the right moment, you will need to do a couple of things:
 

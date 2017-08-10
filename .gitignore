@@ -16,6 +16,10 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+Examples/Swift/SamplePushAppSwift/Pods/
+Examples/Swift/SamplePushAppSwift/Podfile.lock
+Examples/Objective-C/SamplePushApp/Pods/
+Examples/Objective-C/SamplePushApp/Podfile.lock
 
 # CocoaPods
 #

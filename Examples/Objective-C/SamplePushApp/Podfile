@@ -5,3 +5,7 @@ project 'SamplePushApp'
 target 'SamplePushApp' do
     pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
 end
+
+target 'SampleNotificationServiceExtension' do
+    pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
+end
