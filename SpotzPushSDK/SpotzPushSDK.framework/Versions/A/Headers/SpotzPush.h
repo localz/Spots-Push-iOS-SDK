@@ -26,6 +26,7 @@
 
 @property (nonatomic,assign) id<SpotzPushDelegate, UNUserNotificationCenterDelegate> delegate;
 
+
 /**
  * Returns the singleton instance of SpotzPush
  */
