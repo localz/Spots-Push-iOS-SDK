@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
 			Copyright 2017 Localz Pty Ltd.
 			LICENSE
 	}
-	s.version = '1.2'
+	s.version = '1.3'
 	s.summary = 'iOS library for SpotzPush'
 	s.homepage = 'http://localz.com'
 	s.author = { 'Localz Pty Ltd' => 'info@localz.com' }
