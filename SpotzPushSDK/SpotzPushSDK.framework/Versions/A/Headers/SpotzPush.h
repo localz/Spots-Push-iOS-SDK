@@ -14,23 +14,24 @@
 
 @protocol SpotzPushDelegate <NSObject>
 @optional
--(void)spotzPush:(SpotzPush *)spotzPush failedToRegisterDevice:(NSError *)error;
--(void)spotzPush:(SpotzPush *)spotzPush failedToUpdateDevice:(NSError *)error;
--(void)spotzPush:(SpotzPush *)spotzPush didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^) (UIBackgroundFetchResult result))completionHandler;
--(void)spotzPushDidFinishRegistering:(SpotzPush *)spotzPush;
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+- (void) spotzPush:(SpotzPush * _Nonnull)spotzPush failedToRegisterDevice:(NSError * _Nonnull)error;
+- (void) spotzPush:(SpotzPush * _Nonnull)spotzPush failedToUpdateDevice:(NSError * _Nonnull)error;
+- (void) spotzPush:(SpotzPush * _Nonnull)spotzPush didReceiveRemoteNotification:(NSDictionary * _Nullable)userInfo fetchCompletionHandler:(void(^ _Nullable)(UIBackgroundFetchResult result))completionHandler;
+- (void) spotzPushDidFinishRegistering:(SpotzPush * _Nonnull)spotzPush;
+
+- (void) userNotificationCenter:(UNUserNotificationCenter * _Nonnull)center willPresentNotification:(UNNotification * _Nonnull)notification withCompletionHandler:(void (^ _Nullable)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+- (void) userNotificationCenter:(UNUserNotificationCenter * _Nonnull)center didReceiveNotificationResponse:(UNNotificationResponse * _Nonnull)response withCompletionHandler:(void(^_Nullable)(void))completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
 @end
 
 @interface SpotzPush : NSObject
 
-@property (nonatomic,assign) id<SpotzPushDelegate, UNUserNotificationCenterDelegate> delegate;
+@property (nullable,nonatomic,assign) id<SpotzPushDelegate, UNUserNotificationCenterDelegate> delegate;
 
 
 /**
  * Returns the singleton instance of SpotzPush
  */
-+ (SpotzPush *) shared;
++ (SpotzPush * _Nonnull) shared;
 
 /**
  *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
@@ -38,9 +39,9 @@
  *
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
- *  @param options options for advance settings/debugging
+ *  @param config config for advance settings/debugging
  */
-+ (void) initWithProjectId:(NSString *)appId projectKey:(NSString *)appKey config:(NSDictionary *)config;
++ (void) initWithProjectId:(NSString * _Nonnull)appId projectKey:(NSString * _Nonnull)appKey config:(NSDictionary * _Nullable)config;
 
 /**
  *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
@@ -49,9 +50,9 @@
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
  *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
- *  @param options options for advance settings/debugging
+ *  @param config config for advance settings/debugging
  */
-+ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start config:(NSDictionary *)config;
++ (void) initWithAppId:(NSString * _Nonnull)appId appKey:(NSString * _Nonnull)appKey start:(BOOL)start config:(NSDictionary * _Nullable)config;
 
 /**
  *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
@@ -61,11 +62,11 @@
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
  *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
- *  @param userTypes The notification types that your app supports. For a list of possible values, see the constants for the UIUserNotificationType type.
+ *  @param types The notification types that your app supports. For a list of possible values, see the constants for the UIUserNotificationType type.
  *  @param categories A set of UIUserNotificationCategory objects that define the groups of actions a notification may include.
- *  @param options options for advance settings/debugging
+ *  @param config config for advance settings/debugging
  */
-+ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start userTypes:(UIUserNotificationType)types categories:(NSSet *)categories config:(NSDictionary *)config;
++ (void) initWithAppId:(NSString * _Nonnull)appId appKey:(NSString * _Nonnull)appKey start:(BOOL)start userTypes:(UIUserNotificationType)types categories:(NSSet * _Nullable)categories config:(NSDictionary * _Nullable)config;
 
 /**
  *  Initialise service and register device with the given API Key and client Key. Call this method inside the AppDelegate's didFinishLaunching.
@@ -75,11 +76,11 @@
  *  @param appId appId provided by Localz
  *  @param appKey appKey provided by Localz
  *  @param start automatically starts Spotz Push if it is not yet started previously. This may popup the iOS push notification permission dialog.
- *  @param authorizationOptins The notification types that your app supports. For a list of possible values, see the constants for the UNAuthorizationOptions type.
+ *  @param options The notification types that your app supports. For a list of possible values, see the constants for the UNAuthorizationOptions type.
  *  @param categories A set of UNNotificationCategory objects that define the groups of actions a notification may include.
- *  @param options options for advance settings/debugging
+ *  @param config config for advance settings/debugging
  */
-+ (void) initWithAppId:(NSString *)appId appKey:(NSString *)appKey start:(BOOL)start authorizationOptions:(UNAuthorizationOptions)options categories:(NSSet *)categories config:(NSDictionary *)config;
++ (void) initWithAppId:(NSString * _Nonnull)appId appKey:(NSString * _Nonnull)appKey start:(BOOL)start authorizationOptions:(UNAuthorizationOptions)options categories:(NSSet * _Nullable)categories config:(NSDictionary * _Nonnull)config;
 
 
 /**
@@ -106,7 +107,7 @@
  *
  *  @param deviceToken deviceToken from Apple
  */
-- (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+- (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData * _Nonnull)deviceToken;
 
 /**
  *  Register push notification device token for Push Notifications and device name
@@ -114,21 +115,21 @@
  *  @param deviceToken deviceToken from Apple
  *  @param deviceName the device name to identify this device on the console, e.g customerId
  */
-- (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken deviceName:(NSString *)deviceName;
+- (void) appRegisteredForRemoteNotificationsWithDeviceToken:(NSData * _Nonnull)deviceToken deviceName:(NSString * _Nonnull)deviceName;
 
 /**
  *  Register app user notification settings. Call this in AppDelegate's didRegisterUserNotificationSettings
  *  
- *  @param A set of UIUserNotificationCategory objects that define the groups of actions a notification may include.
+ *  @param notificationSettings A set of UIUserNotificationCategory objects that define the groups of actions a notification may include.
  */
-- (void) appRegisteredUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+- (void) appRegisteredUserNotificationSettings:(UIUserNotificationSettings * _Nonnull)notificationSettings;
 
 /**
  *  Handles the errors when registering for push notification.
  *
  *  @param error error returned from didFailToRegisterForRemoteNotificationsWithError
  */
-- (void) appFailedToRegisterForRemoteNotificationsWithError:(NSError *)error;
+- (void) appFailedToRegisterForRemoteNotificationsWithError:(NSError * _Nullable)error;
 
 /**
  *  Handles the remote notification for SpotzPush purposes
@@ -136,7 +137,7 @@
  *  @param userInfo dictionary of the push notification
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
  */
-- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
+- (void) appReceivedRemoteNotification:(NSDictionary * _Nonnull)userInfo applicationState:(UIApplicationState)state;
 
 /**
  *  Handles the remote notification for SpotzPush purposes
@@ -145,22 +146,22 @@
  *  @param state state of the application. Default is to pass [UIApplication sharedApplication].applicationState.
  *  @param completionHandler block after fetch result
  */
-- (void) appReceivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void) appReceivedRemoteNotification:(NSDictionary * _Nonnull)userInfo applicationState:(UIApplicationState)state fetchCompletionHandler:(void (^ _Nullable)(UIBackgroundFetchResult))completionHandler;
 
-- (void) appReceivedActionWithIdentifier:(NSString *)identifier notification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^)()) handler;
+- (void) appReceivedActionWithIdentifier:(NSString * _Nonnull)identifier notification:(NSDictionary * _Nonnull)userInfo applicationState:(UIApplicationState)state completionHandler:(void (^ _Nullable)(void)) handler;
 
-- (void) appPerformFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void) appPerformFetchWithCompletionHandler:(void (^ _Nullable)(UIBackgroundFetchResult))completionHandler;
 
-- (void) userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler;
+- (void) userNotificationCenter:(UNUserNotificationCenter * _Nonnull)center willPresentNotification:(UNNotification * _Nonnull)notification withCompletionHandler:(void (^ _Nullable)(UNNotificationPresentationOptions options))completionHandler NS_AVAILABLE_IOS(10.0);
 
-- (void) userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler;
+- (void) userNotificationCenter:(UNUserNotificationCenter * _Nonnull)center didReceiveNotificationResponse:(UNNotificationResponse * _Nonnull)response withCompletionHandler:(void(^ _Nullable)(void))completionHandler NS_AVAILABLE_IOS(10.0);
 
 #pragma mark Push helpers
 
 /**
  * Retrieve current device ID
  */
-- (NSString *) getDeviceId;
+- (NSString * _Nullable) getDeviceId;
 
 /**
  *  Returns true if push notification is enabled and UIUserNotificationType is not set to none
@@ -188,6 +189,6 @@
 /**
  *  Set device name to be able to identify the device easily in the push console
  */
-+ (void) deviceName:(NSString *)deviceName;
++ (void) deviceName:(NSString * _Nonnull)deviceName;
 
 @end
