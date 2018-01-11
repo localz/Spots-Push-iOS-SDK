@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
 	s.summary = 'iOS library for SpotzPush'
 	s.homepage = 'http://localz.com'
 	s.author = { 'Localz Pty Ltd' => 'info@localz.com' }
-	s.source = { :git => "https://github.com/localz/Spotz-Push-SDK-iOS.git" }
+	s.source = { :git => "https://github.com/localz/Spotz-Push-SDK-iOS.git", :tag => s.version }
 	s.requires_arc = true
 	s.ios.deployment_target = '8.0'
 	s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(inherited)' }
