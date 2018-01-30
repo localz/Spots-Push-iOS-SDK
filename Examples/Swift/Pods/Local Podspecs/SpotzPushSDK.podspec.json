@@ -1,0 +1,50 @@
+{
+  "name": "SpotzPushSDK",
+  "version": "1.4",
+  "platforms": {
+    "ios": "8.0"
+  },
+  "license": {
+    "type": "Commercial",
+    "text": "\t\t\tCopyright 2018 Localz Pty Ltd.\n"
+  },
+  "summary": "iOS library for SpotzPush",
+  "homepage": "http://localz.com",
+  "authors": {
+    "Localz Pty Ltd": "info@localz.com"
+  },
+  "requires_arc": true,
+  "source": {
+    "git": "https://github.com/localz/Spotz-Push-SDK-iOS.git",
+    "tag": "1.4"
+  },
+  "frameworks": [
+    "UIKit",
+    "Foundation",
+    "SystemConfiguration",
+    "CoreLocation"
+  ],
+  "default_subspecs": "Standard",
+  "subspecs": [
+    {
+      "name": "Standard",
+      "xcconfig": {
+        "FRAMEWORK_SEARCH_PATHS": "$(inherited)"
+      },
+      "vendored_frameworks": "SpotzPushSDK/SpotzPushSDK.framework",
+      "pod_target_xcconfig": {
+        "GCC_PREPROCESSOR_DEFINITIONS": "IS_SPOTZPUSHSDK_APP_EXTENSION=0"
+      }
+    },
+    {
+      "name": "Extension",
+      "xcconfig": {
+        "FRAMEWORK_SEARCH_PATHS": "$(inherited)"
+      },
+      "vendored_frameworks": "SpotzPushSDK/SpotzPushSDK.framework",
+      "pod_target_xcconfig": {
+        "GCC_PREPROCESSOR_DEFINITIONS": "IS_SPOTZPUSHSDK_APP_EXTENSION=1"
+      }
+    }
+  ]
+}

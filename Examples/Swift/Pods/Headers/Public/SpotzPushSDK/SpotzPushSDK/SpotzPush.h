@@ -1,0 +1,1 @@
+../../../../SpotzPushSDK/SpotzPushSDK/SpotzPushSDK.framework/Versions/A/Headers/SpotzPush.h
