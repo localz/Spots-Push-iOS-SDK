@@ -80,7 +80,7 @@
  *  @param categories A set of UNNotificationCategory objects that define the groups of actions a notification may include.
  *  @param config config for advance settings/debugging
  */
-+ (void) initWithAppId:(NSString * _Nonnull)appId appKey:(NSString * _Nonnull)appKey start:(BOOL)start authorizationOptions:(UNAuthorizationOptions)options categories:(NSSet * _Nullable)categories config:(NSDictionary * _Nonnull)config;
++ (void) initWithAppId:(NSString * _Nonnull)appId appKey:(NSString * _Nonnull)appKey start:(BOOL)start authorizationOptions:(UNAuthorizationOptions)options categories:(NSSet * _Nullable)categories config:(NSDictionary * _Nonnull)config __IOS_AVAILABLE(10.0);
 
 
 /**
