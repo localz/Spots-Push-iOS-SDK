@@ -4,7 +4,7 @@ Spotz Push SDK
 ## Requirements
 
 - iOS 8 or newer to use SpotzPushSDK
-- iOS 10 or newer to use SpotzPushSDK rich notifications (titles, images, resets, and other interactive content)
+- iOS 10 or newer to use SpotzPushSDK rich notifications (attachments, notification recalling, reliable confirmations)
 
 # Getting Started
 
@@ -142,33 +142,39 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive respo
 
 **5. Add Rich Notification Handler Target _(iOS 10 or newer)_**
 
-Rich notifications allow requested content to be modified before it is presented to the user, such as taking an image URL and downloading and attaching an image.
+Rich notifications allow requested content to be modified before it is presented to the user, such as taking a https attachment URL and presenting it inside the notification.
 
 **NOTE: If using Swift, another bridging header is required for the app extension:**
 1. Create a new header file for the app extension
 2. Under the app extension project's Build Settings, add the header file location to Objective-C Bridging Header
 3. Add the SpotzPushSDK to the bridging header as shown below:
 ```
-#import <SpotzPushSDK/SpotzPush.h>
+#import <SpotzPushSDK/SpotzPushNotificationExtension.h>
 ```
 
 1. Add a new target from the Xcode menu: File > New > Target
 2. Select 'Notification Service Extension' and give it an appropriate name
 3. Choose 'Activate' from activate scheme popup. 
 This will add a new folder to the project with this name
-4. Add the following to your Podfile:
+4. Setup your Podfile to to look like the following:
 ```
-target '<Enter Your Notification Extension Target Name>' do
-    pod 'SpotzPushSDK', :git => 'https://github.com/localz/Spotz-Push-iOS-SDK.git'
+source 'https://github.com/localz/Spotz-iOS-Specs.git'
+source 'https://github.com/CocoaPods/Specs.git'
+
+project '<ProjectNameHere>'
+target '<ProjectTargetNameHere>' do
+    pod 'SpotzPushSDK'
+end
+target '<ProjectExtensionTargetNameHere>' do
+    pod 'SpotzPushSDK/Extension'
 end
 ```
-5. After running `pod install`, go to and set Pods project > SpotzPushSDK target > build settings > `Require Only App-Extension-Safe API` = `NO`
-
-6. Add to NotificationService main file inside the folder:
+5. Add to NotificationService main file inside the folder:
 
 __Objective-C__
 ```
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
+    [[SpotzPushNotificationExtension shared] initWithAppId:@"Enter_Spotz_App_ID_Here" appKey:@"Enter_Spotz_App_Key_Here" options:nil];
     [[SpotzPushNotificationExtension shared] didReceiveNotificationRequest:request withContentHandler:contentHandler];
 }
 
@@ -180,6 +186,7 @@ __Objective-C__
 __Swift__
 ```
 override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    SpotzPushNotificationExtension.shared().initWithAppId("Enter_Spotz_App_ID_Here", appKey:"Enter_Spotz_App_Key_Here", options:nil)
     SpotzPushNotificationExtension.shared().didReceive(request, withContentHandler: contentHandler)
 }
 
@@ -187,34 +194,6 @@ override func serviceExtensionTimeWillExpire() {
     SpotzPushNotificationExtension.shared().serviceExtensionTimeWillExpire()
 }
 ```
-
-Received notifications will now be interpretered by SpotzPushSDK before being presented to the user.
-Here's an example payload of what will be accepted. SpotzPushSDK will only look inside `sp_option`:
-```
-{
-    "apn": {
-        "aps": {
-            "alert": {
-                "body": "a body",
-                "title": "a title"
-            },
-            "sound": "default",
-            "mutable-content": 1
-        },
-        "sp_option": {
-            "id":1234,
-            "cancel":[1234],
-            "attachment":"some HTTPS image url"
-        }
-    }
-}
-```
-
-| Key             | Example Value         | Info                                                                                                                    |
-|-------------- |------------------------|---------------------------------------------------------------------------------------|
-| id                | 1234                         | Identifier to distinguish this notification or group of notifications from others |
-| cancel         | [1234]                      | Array of identifiers to clear from the device                                                      |
-| attachment | https://some-image.png | HTTPS URL or an image/video to display in the notification                    |
 
 **6. Start Location services for location push (optional)**
 
@@ -243,28 +222,9 @@ There are 3 types of notification that you can send via the console
 - Location push notification - queries whether a given device is in the vicinity of given location.
 
 Notifications can do the following: display messages, set icon badge numbers, play a sound, or be a silent/background notification.
-Rich Notifications can do the following: same as above, display an image/gif, show bold text (title), or be deleted.
+Rich Notifications can do the following: same as above, display an image/gif/video, be recalled, or have delivery even when the app is not running in the background.
 
-Rich Notifications use a different type of format, to test this out in the Spotz Push Console use the format:
-```
-{
-    "apn": {
-        "aps": {
-            "alert": {
-                "body": "a body",
-                "title": "a title"
-            },
-            "sound": "default",
-            "mutable-content": 1
-        },
-        "sp_option": {
-            "attachment":"https://someimage.png"
-        }
-    }
-}
-```
-
-**8. Push via Spotz Push API**
+**7. Push via Spotz Push API**
 
 See the [API documentation](https://au-api-spotzpush.localz.io/documentation/public/spotzpush_docs.html) for more details.
 
