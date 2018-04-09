@@ -5,8 +5,8 @@
 //  Created by Melvin Artemas on 29/03/2015.
 //  Copyright (c) 2015 Localz Pty Ltd. All rights reserved.
 //
-@import UIKit;
-@import CoreLocation;
+#import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 

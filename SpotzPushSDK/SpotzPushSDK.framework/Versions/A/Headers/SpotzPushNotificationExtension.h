@@ -6,7 +6,7 @@
 //  Copyright © 2017 Localz Pty Ltd. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 
 @interface SpotzPushNotificationExtension : NSObject

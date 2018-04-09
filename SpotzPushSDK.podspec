@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   
 	s.name	= 'SpotzPushSDK'
-  s.version = '1.4.2'
+  s.version = '1.4.3'
 	s.platform = :ios,'8.0'
 	s.ios.deployment_target = '8.0'
 	s.license = {
